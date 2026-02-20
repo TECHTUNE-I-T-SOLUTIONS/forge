@@ -1,0 +1,487 @@
+You are a principal software architect and senior full-stack engineer.
+
+Build a production-ready AI SaaS web application named “Forge.”
+
+Forge is an AI-powered developer platform that converts software ideas into architecture, tech stacks, folder structures, and starter codebases.
+
+Deliver a complete working project — not a prototype.
+
+🏷️ PRODUCT IDENTITY
+
+Name: Forge
+Tagline: Forge your next project.
+
+Forge helps developers go from idea → structured project blueprint → starter code.
+
+🧱 CORE STACK (MANDATORY)
+Framework
+
+Next.js (latest stable)
+
+App Router
+
+TypeScript
+
+Server Components where appropriate
+
+Styling
+
+Tailwind CSS
+
+Responsive design
+
+Accessible UI
+
+Database
+
+Use MongoDB with Mongoose.
+
+Create models and connection utilities.
+
+AI Integration
+
+Use OpenRouter API.
+
+Default model:
+
+nvidia/nemotron-3-nano-30b-a3b:free
+
+Requirements:
+
+Server-side calls only
+
+Environment variables for API keys
+
+Streaming support if possible
+
+Robust error handling
+
+JSON-safe output parsing
+
+🎨 THEME SYSTEM
+
+Two themes only:
+
+Primary color: #111827 (Deep Graphite)
+Accent color: #2563EB (Electric Blue)
+
+Requirements:
+
+Dark mode + light mode
+
+Toggle switch in navbar
+
+Persist in localStorage
+
+Respect system preference on first load
+
+Smooth transitions
+
+Tailwind theme configuration
+
+🌐 PUBLIC MARKETING SITE
+
+Forge must include public pages (no login required):
+
+1. Landing Page
+
+Sections:
+
+Hero (name + tagline + CTA)
+
+Problem statement
+
+How it works (3-step process)
+
+Key features grid
+
+Screenshots/mock visuals placeholders
+
+Testimonials section (mock data)
+
+Pricing section (mock tiers)
+
+Final CTA
+
+Footer
+
+CTA buttons:
+
+“Get Started”
+
+“View Demo”
+
+2. Features Page
+
+Detailed explanation of:
+
+Architecture generation
+
+Stack recommendations
+
+Folder scaffolding
+
+Code boilerplate
+
+Export capability
+
+3. Pricing Page
+
+Mock pricing tiers:
+
+Free
+
+Pro
+
+Team
+
+Include comparison table.
+
+4. About Page
+
+Describe Forge as a developer productivity platform.
+
+🔐 AUTH-READY STRUCTURE
+
+Do NOT implement full authentication, but prepare architecture:
+
+User model
+
+Session-ready structure
+
+Protected routes placeholder
+
+🧭 APPLICATION AREA (LOGGED-IN EXPERIENCE)
+Dashboard
+
+Show:
+
+User projects (from MongoDB)
+
+Create new project button
+
+Project cards:
+
+Name
+
+Description
+
+Stack
+
+Last updated
+
+Open/Delete actions
+
+New Project Generator
+
+Form fields:
+
+Project name
+
+Project type
+
+Target platform
+
+Preferred stack (optional)
+
+Idea description (large textarea)
+
+Button: Generate Architecture
+
+AI Generation Flow
+
+Backend API route must:
+
+Receive project data
+
+Send structured prompt to OpenRouter
+
+Parse JSON response safely
+
+Store results in MongoDB
+
+Return structured data
+
+Project Detail Page
+
+Display:
+
+Overview
+
+Tech stack
+
+Architecture type
+
+Components list
+
+Folder structure tree
+
+Generated files/code
+
+Export as ZIP
+
+Regenerate button
+
+Delete project
+
+Templates Page
+
+Provide built-in templates:
+
+Next.js SaaS starter
+
+REST API server
+
+Mobile backend
+
+Full-stack starter
+
+Settings Page
+
+Show:
+
+Theme preference
+
+API status
+
+Environment check
+
+Future integration placeholders
+
+🗄️ MONGODB MODELS (MANDATORY)
+
+Use Mongoose.
+
+User Model
+
+Fields:
+
+email
+
+name
+
+createdAt
+
+Project Model
+
+Fields:
+
+userId (ObjectId reference)
+
+name
+
+description
+
+projectType
+
+targetPlatform
+
+preferredStack
+
+generatedArchitecture (JSON)
+
+createdAt
+
+updatedAt
+
+🧠 AI SYSTEM PROMPTS
+
+Implement server-side prompts that force structured outputs.
+
+MASTER SYSTEM PROMPT (USE EXACTLY)
+
+You are an expert software architect and senior developer.
+
+Your task is to design production-ready software project blueprints.
+
+Return ONLY valid JSON.
+
+Do NOT include explanations outside the JSON.
+
+The JSON must follow this schema:
+
+{
+"overview": string,
+"techStack": string[],
+"architectureType": string,
+"components": string[],
+"folderStructure": object,
+"sampleFiles": [
+{
+"path": string,
+"description": string,
+"code": string
+}
+]
+}
+
+Guidelines:
+
+Prefer modern, widely used technologies
+
+Optimize for scalability and maintainability
+
+Use best practices
+
+Keep folder structure realistic
+
+Provide meaningful sample files
+
+Do not hallucinate proprietary tools
+
+Ensure output is syntactically valid JSON
+
+USER PROMPT TEMPLATE
+
+Construct prompt using project form data:
+
+Design a complete software project architecture for the following idea:
+
+Project Name: {name}
+Project Type: {type}
+Target Platform: {platform}
+Preferred Stack: {stack}
+Description: {description}
+
+Return the result in the required JSON format.
+
+🧩 UI COMPONENTS
+
+Create reusable components:
+
+Navbar
+
+Footer
+
+ThemeToggle
+
+ProjectCard
+
+FolderTree viewer
+
+CodeViewer with syntax highlighting
+
+Form components
+
+Modal components
+
+Loading indicators
+
+Error displays
+
+📂 PROJECT STRUCTURE
+
+Organize code cleanly:
+
+app/
+components/
+lib/
+models/
+hooks/
+types/
+public/
+styles/
+
+Separate concerns:
+
+Database logic
+
+AI service
+
+UI components
+
+Utilities
+
+Types
+
+📦 EXPORT FEATURE
+
+Allow user to download generated project as ZIP.
+
+Include:
+
+Folder structure
+
+Sample files
+
+README
+
+Client-side ZIP generation is acceptable.
+
+📘 DOCUMENTATION
+
+Generate a high-quality README.md including:
+
+What Forge is
+
+Setup instructions
+
+MongoDB configuration
+
+Environment variables
+
+Running locally
+
+Deployment guidance
+
+🔐 ENVIRONMENT VARIABLES
+
+Required:
+
+OPENROUTER_API_KEY=
+MONGODB_URI=
+OPENROUTER_BASE_URL=https://openrouter.ai/api/v1
+✨ UX REQUIREMENTS
+
+Clean developer-tool aesthetic
+
+Fast and responsive
+
+Loading states everywhere needed
+
+Proper error handling
+
+Empty states
+
+Accessible controls
+
+Keyboard-friendly interactions
+
+🚀 CODE QUALITY
+
+Production-grade TypeScript
+
+No placeholder logic
+
+No dead code
+
+Functional on first run
+
+Maintainable architecture
+
+Clear naming conventions
+
+❌ DO NOT
+
+Do not produce a mock UI only
+
+Do not omit backend functionality
+
+Do not hardcode secrets
+
+Do not use deprecated patterns
+
+✅ FINAL GOAL
+
+Produce a fully working SaaS-style platform called Forge that:
+
+✔ Has public marketing pages
+✔ Uses MongoDB for persistence
+✔ Integrates OpenRouter AI
+✔ Generates software architectures
+✔ Displays folder structures and code
+✔ Exports starter projects
+✔ Supports dark/light themes
+✔ Is production-ready
+
+Output the COMPLETE project codebase.
