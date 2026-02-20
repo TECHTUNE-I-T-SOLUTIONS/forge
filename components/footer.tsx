@@ -19,13 +19,13 @@ export function Footer() {
       { label: 'About', href: '/about', id: 'about' },
       { label: 'Blog', href: '/blog', id: 'blog' },
       { label: 'Careers', href: '#', id: 'careers' },
-      { label: 'Contact', href: '#', id: 'contact' },
+      { label: 'Contact', href: '/contact', id: 'contact' },
     ],
     Legal: [
-      { label: 'Privacy', href: '#', id: 'privacy' },
-      { label: 'Terms', href: '#', id: 'terms' },
-      { label: 'Security', href: '#', id: 'security' },
-      { label: 'Cookies', href: '#', id: 'cookies' },
+      { label: 'Legal', href: '/legal', id: 'legal' },
+      { label: 'Privacy', href: '/privacy', id: 'privacy' },
+      { label: 'Terms', href: '/terms', id: 'terms' },
+      { label: 'Cookies', href: '/cookies', id: 'cookies' },
     ],
   }
 

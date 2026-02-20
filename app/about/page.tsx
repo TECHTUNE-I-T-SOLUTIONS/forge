@@ -2,139 +2,42 @@
 
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import {
-  Users,
-  Zap,
-  Target,
-  CheckCircle2,
-  Cloud,
-  Code2,
-  GitBranch,
-} from 'lucide-react'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { CheckCircle2, Code2, Shield, Sparkles, Wrench } from 'lucide-react'
 
 export default function AboutPage() {
-  const stats = [
-    { value: '10K+', label: 'Projects Generated' },
-    { value: '2K+', label: 'Active Developers' },
-    { value: '99.9%', label: 'Uptime' },
-    { value: '50%', label: 'Time Saved' },
-  ]
-
-  const values = [
+  const capabilities = [
     {
-      icon: Zap,
-      title: 'Speed',
-      description: 'Generate production-ready projects in seconds, not hours.',
+      icon: Sparkles,
+      title: 'AI Project Generation',
+      description:
+        'Describe your idea, platform, and stack, then Forge generates a practical starter architecture with real files and code.',
     },
     {
       icon: Code2,
-      title: 'Quality',
-      description: 'Every line of code follows best practices and industry standards.',
+      title: 'Built-in IDE Preview',
+      description:
+        'Explore generated folder structures, open files in tabs, and review code in a VS Code-like interface before download.',
     },
     {
-      icon: Users,
-      title: 'Community',
-      description: 'Built by developers for developers, with community input at our core.',
+      icon: Wrench,
+      title: 'Iterative Enhancements',
+      description:
+        'Request modifications to an existing project (for example adding missing files or features) without starting over.',
     },
     {
-      icon: Target,
-      title: 'Accuracy',
-      description: 'AI models trained on thousands of successful projects.',
-    },
-    {
-      icon: GitBranch,
-      title: 'Flexibility',
-      description: 'Customize every aspect of your generated project.',
-    },
-    {
-      icon: Cloud,
-      title: 'Scalability',
-      description: 'Projects generated for growth from day one.',
+      icon: Shield,
+      title: 'Auth + Project Ownership',
+      description:
+        'Secure signup, login, password recovery, and per-user project isolation to keep each workspace private.',
     },
   ]
 
-  const team = [
-    {
-      name: 'Sarah Chen',
-      role: 'Founder & CEO',
-      bio: 'Full-stack developer with 10+ years experience building scalable applications.',
-      image: '👩‍💻',
-    },
-    {
-      name: 'James Wilson',
-      role: 'CTO & Chief Architect',
-      bio: 'AI/ML specialist focused on code generation and architectural patterns.',
-      image: '👨‍💻',
-    },
-    {
-      name: 'Alex Rodriguez',
-      role: 'VP Product',
-      bio: 'Product leader passionate about developer experience and tools.',
-      image: '👨‍🔬',
-    },
-    {
-      name: 'Maria Garcia',
-      role: 'Lead Engineer',
-      bio: 'Backend systems expert with focus on performance and reliability.',
-      image: '👩‍🔬',
-    },
-  ]
-
-  const testimonials = [
-    {
-      text: 'Forge has cut our project setup time from days to minutes. The quality of generated code is exceptional.',
-      author: 'John Smith',
-      role: 'CTO at TechStartup',
-      image: '👤',
-    },
-    {
-      text: 'The security features and architecture review process give us confidence in production deployments.',
-      author: 'Emma Thompson',
-      role: 'Lead Developer at BigCorp',
-      image: '👤',
-    },
-    {
-      text: 'Finally, a tool that understands modern development. Forge is essential to our workflow.',
-      author: 'David Lee',
-      role: 'Founder at DevStudio',
-      image: '👤',
-    },
-  ]
-
-  const roadmap = [
-    {
-      quarter: 'Q1 2026',
-      items: [
-        'Real-time collaboration features',
-        'Advanced AI prompting system',
-        'Enhanced security analysis',
-      ],
-    },
-    {
-      quarter: 'Q2 2026',
-      items: [
-        'CI/CD pipeline generation',
-        'Database schema optimization',
-        'Performance analytics',
-      ],
-    },
-    {
-      quarter: 'Q3 2026',
-      items: [
-        'Mobile app support',
-        'Advanced testing frameworks',
-        'Multi-language support',
-      ],
-    },
-    {
-      quarter: 'Q4 2026',
-      items: [
-        'AI-powered debugging',
-        'Enterprise analytics',
-        'Custom model training',
-      ],
-    },
+  const useCases = [
+    'Launch a new Next.js app with sensible structure and configs',
+    'Generate starter API routes, utility files, and component scaffolds',
+    'Export complete project files as ZIP and continue locally',
+    'Refine generated output by requesting targeted additions',
   ]
 
   return (
@@ -143,75 +46,62 @@ export default function AboutPage() {
       <section className="px-4 py-20 text-center">
         <div className="max-w-4xl mx-auto">
           <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-            Empowering Developers Worldwide
+            About Forge
           </h1>
           <p className="text-xl text-muted-foreground mb-8">
-            Building the future of web development, one generated project at a time.
+            Forge is an AI starter-kit generator focused on helping developers move from idea to usable project structure faster.
           </p>
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="px-4 py-16 bg-muted/50">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {stats.map((stat, idx) => (
-              <div key={idx} className="text-center">
-                <div className="text-3xl md:text-4xl font-bold text-primary">{stat.value}</div>
-                <div className="text-muted-foreground mt-2">{stat.label}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Mission & Vision */}
+      {/* What Forge Is */}
       <section className="px-4 py-16">
         <div className="max-w-4xl mx-auto">
-          <div className="grid md:grid-cols-2 gap-12 mb-16">
+          <div className="grid md:grid-cols-2 gap-12">
             <div>
-              <h2 className="text-3xl font-bold mb-4">Our Mission</h2>
+              <h2 className="text-3xl font-bold mb-4">What Forge Does</h2>
               <p className="text-lg text-muted-foreground mb-4">
-                We believe that building web applications should be fast, intuitive, and enjoyable. 
-                Our mission is to democratize web development by providing developers with 
-                powerful AI-driven tools that help them create production-ready applications instantly.
+                Forge helps you generate practical project foundations for modern web apps.
+                Instead of starting from an empty folder, you begin with structure, key files,
+                dependencies, and implementation examples you can extend.
               </p>
               <p className="text-lg text-muted-foreground">
-                Every developer should have access to enterprise-grade tools and best practices, 
-                regardless of their experience level or team size.
+                The platform is designed to reduce setup friction so you can spend more time building
+                product logic and less time wiring boilerplate.
               </p>
             </div>
 
             <div>
-              <h2 className="text-3xl font-bold mb-4">Our Vision</h2>
+              <h2 className="text-3xl font-bold mb-4">Current Ownership</h2>
               <p className="text-lg text-muted-foreground mb-4">
-                We envision a future where AI enhances human creativity in software development, 
-                reducing boilerplate and freeing developers to focus on unique features that matter.
+                Forge is currently led and actively developed by
+                <span className="font-semibold text-foreground"> Prince TechTune</span>
+                as the main developer.
               </p>
               <p className="text-lg text-muted-foreground">
-                By combining cutting-edge AI with thoughtful design, we're building tools that 
-                developers love to use and that produce code worthy of production systems.
+                The roadmap is focused on reliability of generated output, better modification flows,
+                and smoother developer experience from generation to deployment.
               </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Values */}
+      {/* Capabilities */}
       <section className="px-4 py-16">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl font-bold mb-12 text-center">Our Core Values</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {values.map((value, idx) => {
-              const Icon = value.icon
+          <h2 className="text-3xl font-bold mb-12 text-center">What You Can Do on Forge</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {capabilities.map((capability, idx) => {
+              const Icon = capability.icon
               return (
                 <Card key={idx}>
                   <CardHeader>
                     <Icon className="w-8 h-8 text-primary mb-2" />
-                    <CardTitle>{value.title}</CardTitle>
+                    <CardTitle>{capability.title}</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-muted-foreground">{value.description}</p>
+                    <p className="text-muted-foreground">{capability.description}</p>
                   </CardContent>
                 </Card>
               )
@@ -220,66 +110,15 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Team */}
+      {/* Typical Use Cases */}
       <section className="px-4 py-16 bg-muted/50">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl font-bold mb-12 text-center">Meet Our Team</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {team.map((member, idx) => (
-              <Card key={idx} className="hover:shadow-lg transition-shadow">
-                <CardHeader className="text-center">
-                  <div className="text-5xl mb-4 flex justify-center">{member.image}</div>
-                  <CardTitle>{member.name}</CardTitle>
-                  <CardDescription>{member.role}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground text-center">{member.bio}</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Testimonials */}
-      <section className="px-4 py-16">
         <div className="max-w-4xl mx-auto">
-          <h2 className="text-3xl font-bold mb-12 text-center">What Developers Say</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {testimonials.map((testimonial, idx) => (
-              <Card key={idx}>
-                <CardContent className="pt-6">
-                  <p className="mb-4 italic">"{testimonial.text}"</p>
-                  <div className="flex items-center gap-3">
-                    <div className="text-3xl">{testimonial.image}</div>
-                    <div>
-                      <div className="font-semibold">{testimonial.author}</div>
-                      <div className="text-sm text-muted-foreground">{testimonial.role}</div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Roadmap */}
-      <section className="px-4 py-16 bg-muted/50">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl font-bold mb-12 text-center">Our Roadmap</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {roadmap.map((item, idx) => (
-              <div key={idx}>
-                <h3 className="font-bold text-lg mb-4 text-primary">{item.quarter}</h3>
-                <ul className="space-y-3">
-                  {item.items.map((roadmapItem, itemIdx) => (
-                    <li key={itemIdx} className="flex items-start gap-3">
-                      <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
-                      <span className="text-muted-foreground">{roadmapItem}</span>
-                    </li>
-                  ))}
-                </ul>
+          <h2 className="text-3xl font-bold mb-8 text-center">Typical Use Cases</h2>
+          <div className="space-y-4">
+            {useCases.map((item, idx) => (
+              <div key={idx} className="flex items-start gap-3">
+                <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                <span className="text-muted-foreground text-lg">{item}</span>
               </div>
             ))}
           </div>
@@ -289,13 +128,13 @@ export default function AboutPage() {
       {/* CTA Section */}
       <section className="px-4 py-20">
         <div className="max-w-2xl mx-auto text-center">
-          <h2 className="text-3xl font-bold mb-6">Join Our Community</h2>
+          <h2 className="text-3xl font-bold mb-6">Start Building with Forge</h2>
           <p className="text-lg text-muted-foreground mb-8">
-            Be part of a movement transforming how developers build web applications.
+            Generate your next project foundation, review it in the built-in IDE preview, and iterate until it fits your needs.
           </p>
           <div className="flex gap-4 justify-center flex-wrap">
             <Button size="lg" asChild>
-              <Link href="/signup">Get Started Free</Link>
+              <Link href="/dashboard/new">Generate a Project</Link>
             </Button>
             <Button size="lg" variant="outline" asChild>
               <Link href="/contact">Contact Us</Link>

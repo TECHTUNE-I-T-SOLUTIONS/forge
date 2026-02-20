@@ -74,24 +74,58 @@ export default function Home() {
               </div>
             </div>
 
-            {/* IDE Preview Placeholder */}
-            <div className="max-w-4xl mx-auto mb-20">
-              <div className="bg-muted rounded-lg border border-border overflow-hidden shadow-2xl">
-                <div className="bg-muted-foreground/10 px-4 py-3 border-b border-border flex items-center gap-2">
+            {/* IDE Preview */}
+            <div className="max-w-6xl mx-auto mb-20">
+              <div className="rounded-xl border border-border bg-card overflow-hidden shadow-2xl">
+                <div className="px-4 py-3 border-b border-border bg-muted/60 flex items-center gap-2">
                   <div className="w-3 h-3 rounded-full bg-destructive" />
-                  <div className="w-3 h-3 rounded-full bg-warning" />
-                  <div className="w-3 h-3 rounded-full bg-primary" />
-                  <span className="text-xs text-muted-foreground ml-4">forge-editor.tsx</span>
+                  <div className="w-3 h-3 rounded-full bg-yellow-500" />
+                  <div className="w-3 h-3 rounded-full bg-green-500" />
+                  <span className="text-xs text-muted-foreground ml-3">forge-workspace</span>
                 </div>
-                <div className="p-8 bg-background min-h-96 font-mono text-sm text-foreground">
-                  <div className="text-muted-foreground">
-                    <div>{'// Your generated code will appear here'}</div>
-                    <div>{'import { useState } from "react"'}</div>
-                    <div className="text-primary">{'export default function App() {'}</div>
-                    <div>{'  return ('}</div>
-                    <div>{'    <div>Hello, World!</div>'}</div>
-                    <div>{'  )'}</div>
-                    <div>{'}'}</div>
+
+                <div className="flex h-[430px] bg-background">
+                  <div className="w-64 border-r border-border bg-muted/20 hidden md:block">
+                    <div className="px-4 py-3 border-b border-border text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+                      Explorer
+                    </div>
+                    <div className="p-3 space-y-2 text-sm">
+                      <div className="font-medium">src</div>
+                      <div className="pl-4 text-muted-foreground space-y-1">
+                        <div>app</div>
+                        <div>components</div>
+                        <div>lib</div>
+                        <div>types</div>
+                      </div>
+                      <div className="pt-2 text-muted-foreground">package.json</div>
+                      <div className="text-muted-foreground">README.md</div>
+                      <div className="text-muted-foreground">next.config.js</div>
+                    </div>
+                  </div>
+
+                  <div className="flex-1 flex flex-col overflow-hidden">
+                    <div className="border-b border-border bg-muted/30 flex items-center overflow-x-auto text-sm">
+                      <div className="px-4 py-2 border-r border-border bg-background font-medium">app/page.tsx</div>
+                      <div className="px-4 py-2 border-r border-border text-muted-foreground">components/Hero.tsx</div>
+                      <div className="px-4 py-2 text-muted-foreground">lib/api.ts</div>
+                    </div>
+
+                    <div className="flex-1 overflow-auto p-5 font-mono text-sm leading-6">
+                      <div className="text-muted-foreground">import Link from 'next/link'</div>
+                      <div className="text-muted-foreground">import {'{ ArrowRight }'} from 'lucide-react'</div>
+                      <div className="mt-3 text-foreground">export default function HomePage() {'{'}</div>
+                      <div className="pl-4 text-foreground">return (</div>
+                      <div className="pl-8 text-foreground">&lt;main className=\"min-h-screen\"&gt;</div>
+                      <div className="pl-12 text-foreground">&lt;h1 className=\"text-5xl font-bold\"&gt;</div>
+                      <div className="pl-16 text-primary">Forge your next app with AI</div>
+                      <div className="pl-12 text-foreground">&lt;/h1&gt;</div>
+                      <div className="pl-12 text-foreground">&lt;Link href=\"/dashboard\"&gt;</div>
+                      <div className="pl-16 text-foreground">Start Generating &lt;ArrowRight /&gt;</div>
+                      <div className="pl-12 text-foreground">&lt;/Link&gt;</div>
+                      <div className="pl-8 text-foreground">&lt;/main&gt;</div>
+                      <div className="pl-4 text-foreground">)</div>
+                      <div className="text-foreground">{'}'}</div>
+                    </div>
                   </div>
                 </div>
               </div>

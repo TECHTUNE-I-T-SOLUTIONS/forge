@@ -18,6 +18,7 @@ interface SessionUser {
 export function Header() {
   const { theme, setTheme } = useTheme()
   const [menuOpen, setMenuOpen] = useState(false)
+  const [mounted, setMounted] = useState(false)
   const [user, setUser] = useState<SessionUser | null>(null)
   const [authLoading, setAuthLoading] = useState(true)
   const pathname = usePathname()
@@ -30,6 +31,10 @@ export function Header() {
     { href: '/pricing', label: 'Pricing' },
     { href: '/docs', label: 'Docs' },
   ]
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   useEffect(() => {
     const fetchSession = async () => {
@@ -136,8 +141,9 @@ export function Header() {
           <button
             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
             className="p-2 rounded-md hover:bg-muted transition-colors"
+            aria-label="Toggle theme"
           >
-            {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+            {mounted ? (theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />) : <Moon size={20} />}
           </button>
 
           {/* Mobile Menu Toggle */}

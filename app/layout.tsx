@@ -7,7 +7,9 @@ export const metadata: Metadata = {
   title: 'Forge - AI Starter Kit Generator',
   description: 'Generate beautiful Next.js starter kits with AI-powered code generation',
   icons: {
-    icon: '/favicon.ico',
+    icon: '/assets/forge.png',
+    shortcut: '/assets/forge.png',
+    apple: '/assets/forge.png',
   },
 }
 
