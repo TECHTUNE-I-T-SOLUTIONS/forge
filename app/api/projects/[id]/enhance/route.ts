@@ -4,7 +4,7 @@ import Project from '@/lib/models/Project'
 import User from '@/lib/models/User'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
-import { generateArchitecture } from '@/lib/ai/code-generator'
+import { buildFileTreeFromArchitecture, generateArchitecture } from '@/lib/ai/code-generator'
 
 interface ProjectFile {
   id: string
@@ -15,46 +15,22 @@ interface ProjectFile {
   children?: ProjectFile[]
 }
 
-function organizeFilesIntoTree(files: ProjectFile[]): ProjectFile[] {
-  const tree: ProjectFile[] = []
-  const folderMap = new Map<string, ProjectFile>()
+function flattenFiles(nodes: ProjectFile[] = []): ProjectFile[] {
+  const output: ProjectFile[] = []
 
-  for (const file of files) {
-    const parts = file.path.split('/')
-    let currentPath = ''
-
-    // Create folder structure
-    for (let i = 0; i < parts.length - 1; i++) {
-      currentPath = currentPath ? `${currentPath}/${parts[i]}` : parts[i]
-      
-      if (!folderMap.has(currentPath)) {
-        const folder: ProjectFile = {
-          id: `folder-${currentPath}`,
-          name: parts[i],
-          path: currentPath,
-          type: 'folder',
-          children: [],
-        }
-        folderMap.set(currentPath, folder)
+  const walk = (items: ProjectFile[]) => {
+    for (const item of items) {
+      if (item.type === 'file') {
+        output.push(item)
       }
-    }
-
-    // Add file to its parent folder
-    if (parts.length > 1) {
-      const parentPath = parts.slice(0, -1).join('/')
-      const parent = folderMap.get(parentPath)
-      if (parent && parent.children) {
-        parent.children.push(file)
+      if (item.children && item.children.length > 0) {
+        walk(item.children)
       }
-    } else {
-      // Root level file
-      tree.push(file)
     }
   }
 
-  // Build tree from root folders
-  const roots = Array.from(folderMap.values()).filter(f => !f.path.includes('/'))
-  return [...tree, ...roots]
+  walk(nodes)
+  return output
 }
 
 export async function POST(
@@ -108,39 +84,70 @@ export async function POST(
       )
     }
 
-    // Generate enhanced architecture with the requested modifications
+    const existingFlatFiles = flattenFiles((project.files as ProjectFile[]) || [])
+
+    // Generate enhancement based on current payload from DB
     const enhancedArchitecture = await generateArchitecture({
-      name: `${project.name} - Enhanced`,
-      description: `${project.description}\n\nAdditional Requirements: ${modifications}`,
+      name: project.name,
+      description: project.description,
       projectType: project.projectType,
       targetPlatform: project.targetPlatform,
       preferredStack: project.preferredStack,
+      generationMode: 'enhance',
+      editRequest: modifications,
+      existingArchitectureSnapshot: JSON.stringify(project.generatedArchitecture || {}, null, 2),
+      existingFilesSnapshot: existingFlatFiles.map((file) => ({
+        path: file.path,
+        content: file.content || '',
+      })),
     })
 
-    // Merge new files with existing ones (avoiding duplicates but updating if needed)
-    const existingPaths = new Set((project.files as ProjectFile[]).map((f: ProjectFile) => f.path))
-    const newFiles = enhancedArchitecture.sampleFiles
-      ?.filter((f) => !existingPaths.has(f.path))
-      .map((f) => ({
-        id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-        name: f.path.split('/').pop() || f.path,
-        path: f.path,
-        content: f.code,
-        type: 'file' as const,
-      })) || []
+    // Patch existing files by path and add newly generated files by path
+    const fileByPath = new Map<string, { path: string; description: string; code: string }>()
 
-    // Combine existing and new files
-    const allFiles = [...(project.files as ProjectFile[]), ...newFiles]
-    
-    // Organize into proper folder structure
-    const organizedFiles = organizeFilesIntoTree(allFiles)
+    for (const file of existingFlatFiles) {
+      fileByPath.set(file.path, {
+        path: file.path,
+        description: 'Existing project file',
+        code: file.content || '',
+      })
+    }
 
-    // Add new files to project with organized structure
+    let createdCount = 0
+    let updatedCount = 0
+
+    for (const generatedFile of enhancedArchitecture.sampleFiles || []) {
+      if (fileByPath.has(generatedFile.path)) {
+        updatedCount += 1
+      } else {
+        createdCount += 1
+      }
+      fileByPath.set(generatedFile.path, {
+        path: generatedFile.path,
+        description: generatedFile.description || 'Generated file',
+        code: generatedFile.code,
+      })
+    }
+
+    const mergedSampleFiles = Array.from(fileByPath.values())
+    const rebuiltTree = buildFileTreeFromArchitecture({
+      overview: enhancedArchitecture.overview,
+      techStack: enhancedArchitecture.techStack,
+      architectureType: enhancedArchitecture.architectureType,
+      components: enhancedArchitecture.components,
+      folderStructure: enhancedArchitecture.folderStructure,
+      sampleFiles: mergedSampleFiles,
+    })
+
+    // Save patched project
     const updatedProject = await Project.findByIdAndUpdate(
       id,
       {
-        files: organizedFiles,
-        generatedArchitecture: enhancedArchitecture,
+        files: rebuiltTree,
+        generatedArchitecture: {
+          ...enhancedArchitecture,
+          sampleFiles: mergedSampleFiles,
+        },
       },
       { new: true }
     )
@@ -148,7 +155,7 @@ export async function POST(
     return NextResponse.json(
       {
         project: updatedProject,
-        message: `Successfully added ${newFiles.length} new files to your project`,
+        message: `Project updated successfully (${createdCount} added, ${updatedCount} updated)`,
       },
       { status: 200 }
     )

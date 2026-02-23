@@ -19,6 +19,13 @@ export interface GenerateArchitectureInput {
   targetPlatform: string
   preferredStack?: string
   description: string
+  generationMode?: 'new' | 'enhance'
+  editRequest?: string
+  existingArchitectureSnapshot?: string
+  existingFilesSnapshot?: Array<{
+    path: string
+    content: string
+  }>
 }
 
 export interface ProjectFileNode {

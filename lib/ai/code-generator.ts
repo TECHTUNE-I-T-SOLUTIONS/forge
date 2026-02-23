@@ -96,6 +96,34 @@ JSON Structure:
 - Type definitions section that says "// TODO: add types"
 - Remember: EVERY FILE must be ready-to-use production code, not learning examples`
 
+const ENHANCEMENT_SYSTEM_PROMPT = `You are an expert software architect working on an EXISTING project.
+
+**OUTPUT ONLY VALID JSON. No markdown code fences, no extra text before/after.**
+
+JSON Structure:
+{
+	"overview": "Updated architecture summary",
+	"techStack": ["Current stack items"],
+	"architectureType": "Current architecture pattern",
+	"components": ["Updated component list"],
+	"folderStructure": {"folder": ["files"]},
+	"sampleFiles": [
+		{"path": "file/to/update.ts", "description": "Updated file", "code": "complete updated code"}
+	]
+}
+
+You are given the CURRENT project files and architecture context.
+Your job is to apply the requested modifications by returning file-level updates.
+
+CRITICAL RULES:
+- Return ONLY files that need to be created or updated
+- Keep unchanged files out of sampleFiles
+- If requested feature is missing dependencies/config, include the required related files (e.g. package.json, env, routes)
+- Preserve existing folder conventions where possible
+- Ensure all returned files are complete and production-ready
+- For Next.js, use app router conventions when platform is nextjs
+- No stubs, no TODOs, no placeholders`
+
 function buildUserPrompt(input: GenerateArchitectureInput): string {
 	const stackValue = input.preferredStack?.trim() || 'Not specified'
 	const platformGuidance = getPlatformGuidance(input.targetPlatform)
@@ -111,6 +139,42 @@ Description: ${input.description}
 ${platformGuidance}
 
 CRITICAL: You MUST follow the user's platform and stack specifications EXACTLY. Generate 15-18 complete, production-ready files.
+Return ONLY the JSON object, no other text.`
+}
+
+function buildEnhancementPrompt(input: GenerateArchitectureInput): string {
+	const stackValue = input.preferredStack?.trim() || 'Not specified'
+	const platformGuidance = getPlatformGuidance(input.targetPlatform)
+	const editRequest = input.editRequest?.trim() || 'Apply general improvements and fix structural gaps.'
+
+	const filesPreview = (input.existingFilesSnapshot || [])
+		.slice(0, 120)
+		.map((file, index) => {
+			const excerpt = file.content.slice(0, 1200)
+			return `${index + 1}. ${file.path}\n${excerpt}`
+		})
+		.join('\n\n---\n\n')
+
+	return `Apply targeted modifications to this existing project.
+
+Project Name: ${input.name}
+Project Type: ${input.projectType}
+Target Platform: ${input.targetPlatform}
+Preferred Stack: ${stackValue}
+Original Description: ${input.description}
+
+REQUESTED MODIFICATIONS:
+${editRequest}
+
+${platformGuidance}
+
+CURRENT ARCHITECTURE SNAPSHOT:
+${input.existingArchitectureSnapshot || 'Not available'}
+
+CURRENT FILES SNAPSHOT (path + excerpt):
+${filesPreview || 'No files provided'}
+
+CRITICAL: Return only files that should be created or updated based on the request. Keep paths accurate so files can be patched by path.
 Return ONLY the JSON object, no other text.`
 }
 
@@ -689,9 +753,15 @@ const CHEAP_PAID_MODELS = [
 	'mistralai/mistral-nemo',                     // Very cheap fallback
 ]
 
+const GROQ_MODELS = [
+	'llama-3.3-70b-versatile',
+	'deepseek-r1-distill-llama-70b',
+]
+
 async function tryGenerateWithModel(
 	model: string,
-	input: GenerateArchitectureInput,
+	systemPrompt: string,
+	userPrompt: string,
 	openRouterBaseUrl: string,
 	apiKey: string
 ): Promise<GeneratedArchitecture | null> {
@@ -717,8 +787,8 @@ async function tryGenerateWithModel(
 				temperature: 0.2,
 				max_tokens: maxTokens,
 				messages: [
-					{ role: 'system', content: MASTER_SYSTEM_PROMPT },
-					{ role: 'user', content: buildUserPrompt(input) },
+					{ role: 'system', content: systemPrompt },
+					{ role: 'user', content: userPrompt },
 				],
 			}),
 		})
@@ -759,6 +829,8 @@ async function tryGenerateWithModel(
 export async function generateArchitecture(input: GenerateArchitectureInput): Promise<GeneratedArchitecture> {
 	const openRouterBaseUrl = process.env.OPENROUTER_BASE_URL || 'https://openrouter.ai/api/v1'
 	const apiKey = process.env.OPENROUTER_API_KEY
+	const systemPrompt = input.generationMode === 'enhance' ? ENHANCEMENT_SYSTEM_PROMPT : MASTER_SYSTEM_PROMPT
+	const userPrompt = input.generationMode === 'enhance' ? buildEnhancementPrompt(input) : buildUserPrompt(input)
 
 	if (!apiKey) {
 		console.warn('No OPENROUTER_API_KEY found, using fallback architecture')
@@ -767,7 +839,7 @@ export async function generateArchitecture(input: GenerateArchitectureInput): Pr
 
 	// Try each free model in order until one succeeds
 	for (const model of FREE_MODELS) {
-		const result = await tryGenerateWithModel(model, input, openRouterBaseUrl, apiKey)
+		const result = await tryGenerateWithModel(model, systemPrompt, userPrompt, openRouterBaseUrl, apiKey)
 		if (result) {
 			return result
 		}
@@ -776,9 +848,21 @@ export async function generateArchitecture(input: GenerateArchitectureInput): Pr
 	// Free models exhausted - try ultra-cheap paid models (pennies per generation)
 	console.log('Free models exhausted, trying ultra-cheap paid models (<$0.01 per generation)...')
 	for (const model of CHEAP_PAID_MODELS) {
-		const result = await tryGenerateWithModel(model, input, openRouterBaseUrl, apiKey)
+		const result = await tryGenerateWithModel(model, systemPrompt, userPrompt, openRouterBaseUrl, apiKey)
 		if (result) {
 			return result
+		}
+	}
+
+	// Optional direct Groq fallback (if GROQ_API_KEY is configured)
+	const groqKey = process.env.GROQ_API_KEY
+	if (groqKey) {
+		console.log('OpenRouter models exhausted, trying Groq direct models...')
+		for (const model of GROQ_MODELS) {
+			const groqResult = await tryGenerateWithGroq(model, systemPrompt, userPrompt, groqKey)
+			if (groqResult) {
+				return groqResult
+			}
 		}
 	}
 
@@ -786,7 +870,7 @@ export async function generateArchitecture(input: GenerateArchitectureInput): Pr
 	const geminiKey = process.env.GEMINI_API_KEY
 	if (geminiKey) {
 		console.log('All OpenRouter models failed, trying Google Gemini API directly...')
-		const geminiResult = await tryGenerateWithGemini(input, geminiKey)
+		const geminiResult = await tryGenerateWithGemini(systemPrompt, userPrompt, geminiKey)
 		if (geminiResult) {
 			return geminiResult
 		}
@@ -798,7 +882,8 @@ export async function generateArchitecture(input: GenerateArchitectureInput): Pr
 }
 
 async function tryGenerateWithGemini(
-	input: GenerateArchitectureInput,
+	systemPrompt: string,
+	userPrompt: string,
 	apiKey: string
 ): Promise<GeneratedArchitecture | null> {
 	try {
@@ -817,7 +902,7 @@ async function tryGenerateWithGemini(
 						{
 							parts: [
 								{
-									text: `${MASTER_SYSTEM_PROMPT}\n\n${buildUserPrompt(input)}`,
+									text: `${systemPrompt}\n\n${userPrompt}`,
 								},
 							],
 						},
@@ -858,6 +943,64 @@ async function tryGenerateWithGemini(
 		return normalized
 	} catch (error) {
 		console.error('Gemini error:', error instanceof Error ? error.message : error)
+		return null
+	}
+}
+
+async function tryGenerateWithGroq(
+	model: string,
+	systemPrompt: string,
+	userPrompt: string,
+	apiKey: string
+): Promise<GeneratedArchitecture | null> {
+	try {
+		console.log(`Trying Groq model: ${model}`)
+
+		const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+			method: 'POST',
+			headers: {
+				Authorization: `Bearer ${apiKey}`,
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({
+				model,
+				temperature: 0.2,
+				max_tokens: 12000,
+				messages: [
+					{ role: 'system', content: systemPrompt },
+					{ role: 'user', content: userPrompt },
+				],
+			}),
+		})
+
+		if (!response.ok) {
+			const errorText = await response.text()
+			console.warn(`Groq model ${model} failed:`, response.status, errorText.substring(0, 200))
+			return null
+		}
+
+		const result = await response.json()
+		const content = result?.choices?.[0]?.message?.content
+
+		if (typeof content !== 'string' || !content.trim()) {
+			console.warn(`Groq model ${model} returned empty response`)
+			return null
+		}
+
+		console.log(`✓ Groq model ${model} succeeded, response length: ${content.length} chars`)
+
+		const parsed = extractJson(content)
+		const normalized = normalizeArchitecture(parsed)
+
+		if (!normalized.sampleFiles || normalized.sampleFiles.length < 1) {
+			console.warn(`Groq model ${model} generated too few files (${normalized.sampleFiles?.length || 0})`)
+			return null
+		}
+
+		console.log(`✓ Successfully generated ${normalized.sampleFiles.length} files with Groq ${model}`)
+		return normalized
+	} catch (error) {
+		console.warn(`Groq model ${model} error:`, error instanceof Error ? error.message : error)
 		return null
 	}
 }
